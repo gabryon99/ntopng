@@ -64,6 +64,7 @@
                             <input max="32" min="1" name="key_asn" type="text" class="form-control" id="widget-asn-input">
                         </div>
                     </div>
+                    <span class="invalid-feedback"></span>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

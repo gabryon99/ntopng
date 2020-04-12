@@ -49,21 +49,22 @@
                     <div class="form-group row">
                         <label class="col-form-label col-sm-3" for="edit-widget-ip-input">IP address:</label>
                         <div class="col-sm-5">
-                            <input max="32" min="1" name="key_ip" type="text" class="form-control" id="edit-widget-ip-input">
+                            <input min="1" name="key_ip" type="text" class="form-control" id="edit-widget-ip-input">
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-form-label col-sm-3" for="edit-widget-mac-input">Mac address:</label>
                         <div class="col-sm-5">
-                            <input max="32" min="1" name="key_mac" type="text" class="form-control" id="edit-widget-mac-mac">
+                            <input min="1" name="key_mac" type="text" class="form-control" id="edit-widget-mac-mac">
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-form-label col-sm-3" for="edit-widget-asn-input">ASN:</label>
                         <div class="col-sm-5">
-                            <input max="32" min="1" name="key_asn" type="text" class="form-control" id="edit-widget-asn-input">
+                            <input min="1" name="key_asn" type="text" class="form-control" id="edit-widget-asn-input">
                         </div>
                     </div>
+                    <span class="invalid-feedback"></span>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

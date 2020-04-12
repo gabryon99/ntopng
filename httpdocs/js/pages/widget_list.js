@@ -10,6 +10,41 @@ function serializeFormArrayIntoObject(serializedArray) {
 
 $(document).ready(function() {
 
+    function submitPost(data_to_send, modal_id, $submit_button) {
+
+        const $invalid_feedback = $(modal_id).find(`span.invalid-feedback`);
+        $invalid_feedback.fadeOut().html('');
+        $submit_button.attr("disabled", "true");
+
+        $.post(`${http_prefix}/lua/edit_widgets.lua`, data_to_send, function (data) {
+
+            switch (data_to_send.action) {
+                case 'add':
+                    add_csrf = data.csrf;
+                    break;
+                case 'edit':
+                    edit_csrf = data.csrf;
+                    break;
+                case 'remove':
+                    remove_csrf = data.csrf;
+                    break;
+            }
+
+            $submit_button.removeAttr("disabled");
+
+            if (data.success) {
+                $widgets_table.ajax.reload();
+                $(modal_id).modal('hide');
+                if ($(modal_id).find('form').length > 0) $(modal_id).find('form')[0].reset();
+            }
+            else {
+                $invalid_feedback.fadeIn().html(data.message);
+            }
+
+        });
+
+    }
+
     const $widgets_table = $(`#widgets-list`).DataTable({
         lengthChange: false,
         pagingType: 'full_numbers',
@@ -62,25 +97,22 @@ $(document).ready(function() {
     $(`#widgets-list`).on('click', `a[href='#remove-widget-modal']`, function(e) {
 
         const row_data = $widgets_table.row($(this).parent()).data();
+        const $submit_button = $(this).find(`[type='submit']`);
+
         $(`#remove-widget-button`).off('click').click(function () {
 
             const data_to_send = { widget_key: row_data.key };
-
-            $.post(`${http_prefix}/lua/edit_widgets.lua`, { action: 'remove', JSON: JSON.stringify(data_to_send), csrf: remove_csrf }, function (data) {
-
-                remove_csrf = data.csrf;
-
-                if (data.success) {
-                    $widgets_table.ajax.reload();
-                    $(`#remove-widget-modal`).modal('hide');
-                }
-
-            });
+            submitPost(
+                { action: 'remove', JSON: JSON.stringify(data_to_send), csrf: remove_csrf },
+                '#remove-widget-modal',
+                $submit_button
+            );
         });
     });
 
     $(`#widgets-list`).on('click', `a[href='#edit-widget-modal']`, function(e) {
 
+        const $submit_button = $(this).find(`[type='submit']`);
         const row_data = $widgets_table.row($(this).parent()).data();
         row_data.key_ip = row_data.params.key_ip;
         row_data.key_mac = row_data.params.key_mac;
@@ -99,37 +131,25 @@ $(document).ready(function() {
             const data_to_send = serializeFormArrayIntoObject($(this).serializeArray());
             data_to_send.widget_key = row_data.key;
 
-            console.log(data_to_send);
-
-            $.post(`${http_prefix}/lua/edit_widgets.lua`, { action: 'edit', JSON: JSON.stringify(data_to_send), csrf: edit_csrf }, function (data) {
-                edit_csrf = data.csrf;
-                if (data.success) {
-                    $widgets_table.ajax.reload();
-                    $(`#edit-widget-modal`).modal('hide');
-                }
-
-            });
+            submitPost(
+                { action: 'edit', JSON: JSON.stringify(data_to_send), csrf: edit_csrf },
+                `#edit-widget-modal`,
+                $submit_button
+            );
         });
     });
 
     $(`#add-widget-modal form`).submit(function(e) {
 
         e.preventDefault();
+        const $submit_button = $(this).find(`[type='submit']`);
         const data_to_send = serializeFormArrayIntoObject($(this).serializeArray());
-        const $form = $(this);
 
-        $.post(`${http_prefix}/lua/edit_widgets.lua`, { action: 'add', csrf: add_csrf, JSON: JSON.stringify(data_to_send) }, function (data) {
-
-            add_csrf = data.csrf;
-
-            if (data.success) {
-                $widgets_table.ajax.reload();
-                $form[0].reset();
-                $(`#add-widget-modal`).modal('hide');
-            }
-
-        });
-
+        submitPost(
+            { action: 'add', csrf: add_csrf, JSON: JSON.stringify(data_to_send) },
+            `#add-widget-modal`,
+            $submit_button
+        );
     });
 
 });

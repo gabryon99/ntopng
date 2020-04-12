@@ -13,6 +13,7 @@
                     Are you really sure to remove this widget? The widgets in the page will be disabled as well. <br>
                     <b>Do at your own risk!</b>
                 </div>
+                <span class="invalid-feedback"></span>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

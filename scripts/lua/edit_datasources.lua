@@ -1,5 +1,5 @@
 --
--- (C) 2020 - ntop.org
+-- (C) 2019-20 - ntop.org
 --
 
 local dirs = ntop.getDirs()
@@ -7,23 +7,14 @@ package.path = dirs.installdir .. "/scripts/lua/modules/?.lua;" .. package.path
 
 require "lua_utils"
 local json = require("dkjson")
-local widget_utils = require("widget_utils")
+local datasource_utils = require("datasource_utils")
 local http_lint = require("http_lint")
+
+local action = _POST["action"]
 
 local function reportError(msg)
     print(json.encode({ message = msg, success = false, csrf = ntop.getRandomCSRFValue() }))
 end
-
-local function format_params(data)
-    return {
-        ifid = data.interface,
-        key_ip = data.key_ip,
-        key_mac = data.key_mac,
-        key_asn = data.key_asn
-    }
-end
-
-local action = _POST["action"]
 
 sendHTTPContentTypeHeader('application/json')
 
@@ -35,22 +26,21 @@ end
 
 local json_data = _POST["JSON"]
 local data = json.decode(json_data)
-local params = format_params(data)
 
 local response = {
     csrf = ntop.getRandomCSRFValue()
 }
 
 if (action == "add") then
-    response.success, response.message = widget_utils.add_widget(data.name, data.ds_hash, data.type, params)
+    response.success, response.message = datasource_utils.add_source(data.alias, tonumber(data.data_retention), data.scope, data.origin)
 elseif (action == "edit") then
-    response.success, response.message = widget_utils.edit_widget(data.widget_key, data.name, data.ds_hash, data.type, params)
+    response.success, response.message = datasource_utils.edit_source(data.ds_key, data.alias, tonumber(data.data_retention), data.scope, data.origin)
 elseif (action == "remove") then
-    response.success, response.message = widget_utils.delete_widget(data.widget_key)
+    response.success, response.message = datasource_utils.delete_source(data.ds_key)
 else
     traceError(TRACE_ERROR, TRACE_CONSOLE, "Invalid 'action' parameter.")
-    reportError("Invalid 'action' parameter.")
-    return
+    response.success = false
+    response.message = "Invalid 'action' parameter."
 end
 
 
